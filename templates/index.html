@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}대시보드{% endblock %}
+{% block content %}
+<h1>통합 대시보드</h1>
+
+<section class="card">
+    <h2>최신 뉴스</h2>
+    {% if headlines %}
+    <ul class="news-list">
+        {% for item in headlines %}
+        <li>
+            <span class="badge">{{ item.get('구분', '') }}</span>
+            <a href="{{ item.get('링크', '#') }}" target="_blank" rel="noopener">{{ item.get('제목', '') }}</a>
+            <span class="meta">{{ item.get('언론사', '') }} · {{ item.get('날짜', '') }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">아직 수집된 뉴스가 없습니다. 1.1~1.4 단계를 먼저 실행하세요.</p>
+    {% endif %}
+    <a class="more-link" href="{{ url_for('news_page') }}">전체 뉴스 보기 →</a>
+</section>
+
+<section class="card">
+    <h2>도시가스 산업용요금 스냅샷</h2>
+    {% if price.available %}
+        {% set last_price = price.monthly_df['산업용요금'].dropna() %}
+        {% if last_price.shape[0] > 0 %}
+        <p>최근 값: <b>{{ "%.2f"|format(last_price.iloc[-1]) }}</b> 원/MJ</p>
+        {% endif %}
+        {% if price.forecast_df is not none and price.forecast_df.shape[0] > 0 %}
+        <p>
+            다음 달 예측: <b>{{ "%.2f"|format(price.forecast_df['예측_산업용요금'].iloc[0]) }}</b> 원/MJ
+            (R²={{ "%.3f"|format(price.r2) if price.r2 is not none else "-" }})
+        </p>
+        {% endif %}
+    {% else %}
+        <p class="empty">{{ price.message }}</p>
+    {% endif %}
+    <a class="more-link" href="{{ url_for('price_page') }}">상세 분석 보기 →</a>
+</section>
+
+<section class="card">
+    <h2>LNG선 위치</h2>
+    <p>실시간 수집된 LNG선의 최신 위치와 이동 경로를 지도에서 확인할 수 있습니다.</p>
+    <a class="more-link" href="{{ url_for('map_page') }}">지도 보기 →</a>
+</section>
+{% endblock %}

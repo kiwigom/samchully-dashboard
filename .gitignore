@@ -1,0 +1,21 @@
+# 환경변수/비밀키 (실제 값은 절대 커밋하지 않는다 - GitHub/Vercel/Actions의 secrets로만 관리)
+.env
+.env.*
+!.env.example
+
+# 파이썬
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Vercel
+.vercel
+
+# 예전 CSV 기반 버전에서 남을 수 있는 산출물(이제는 Supabase에 저장되므로 커밋 대상 아님)
+*.csv
+!data/kogas_raw/**/*.csv
+
+# OS/에디터
+.DS_Store
+.vscode/

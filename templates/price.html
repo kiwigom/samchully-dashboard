@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}가격분석{% endblock %}
+{% block content %}
+<h1>가격 상관관계 · 유추</h1>
+
+<form method="post" action="{{ url_for('refresh_price') }}" class="refresh-form">
+    <button type="submit">가격 데이터 수집 (유가·환율·천연가스·도시가스요금)</button>
+    <span class="meta">유가/환율은 API 키가 없어도 무료 대체 소스로 자동 수집됩니다.</span>
+</form>
+
+{% if not result.available %}
+<p class="empty">{{ result.message }}</p>
+{% else %}
+
+<section class="card">
+    <h2>상관관계 (도시가스 산업용요금 기준)</h2>
+    {% if result.corr_df.shape[0] > 0 %}
+    <table class="table">
+        <tr><th>변수</th><th>상관계수</th></tr>
+        {% for idx, row in result.corr_df.iterrows() %}
+        <tr><td>{{ idx }}</td><td>{{ "%.3f"|format(row['산업용요금']) }}</td></tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p class="empty">상관관계를 계산할 데이터가 부족합니다.</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>실적 및 예측 그래프</h2>
+    {% if result.plot_base64 %}
+    <img src="data:image/png;base64,{{ result.plot_base64 }}" alt="가격 예측 그래프" style="max-width:100%;">
+    {% else %}
+    <p class="empty">회귀모델을 학습할 데이터가 부족합니다.</p>
+    {% endif %}
+
+    {% if result.forecast_df is not none and result.forecast_df.shape[0] > 0 %}
+    <table class="table">
+        <tr><th>날짜</th><th>예측 산업용요금</th></tr>
+        {% for idx, row in result.forecast_df.iterrows() %}
+        <tr><td>{{ idx.strftime("%Y-%m") }}</td><td>{{ "%.2f"|format(row['예측_산업용요금']) }}</td></tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>유가·환율 입력기</h2>
+    {% if result.model %}
+    <form method="post">
+        <label>{{ result.oil_col }} 가격 (USD/bbl)
+            <input type="number" step="0.01" name="oil_price" required>
+        </label>
+        <label>환율 (원/USD)
+            <input type="number" step="0.01" name="fx_rate" required>
+        </label>
+        <button type="submit">추정하기</button>
+    </form>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    {% if estimate is not none %}
+    <p class="result">예상 산업용 도시가스요금: <b>{{ "%.2f"|format(estimate) }}</b> 원/MJ</p>
+    {% endif %}
+    {% else %}
+    <p class="empty">입력기를 쓰려면 회귀모델 학습이 먼저 필요합니다. (유가·환율 데이터 확인)</p>
+    {% endif %}
+</section>
+
+{% endif %}
+{% endblock %}

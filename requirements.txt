@@ -1,0 +1,13 @@
+flask
+pandas
+numpy
+scikit-learn
+matplotlib
+folium
+feedparser
+requests
+beautifulsoup4
+yfinance
+websockets
+supabase
+python-dotenv

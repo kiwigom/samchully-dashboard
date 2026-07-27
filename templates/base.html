@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}삼천리 통합 대시보드{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">삼천리 통합 대시보드</div>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}">대시보드</a>
+            <a href="{{ url_for('news_page') }}">뉴스</a>
+            <a href="{{ url_for('price_page') }}">가격분석</a>
+            <a href="{{ url_for('map_page') }}">LNG선 지도</a>
+        </div>
+    </nav>
+    <main class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-list">
+                {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

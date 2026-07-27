@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}뉴스{% endblock %}
+{% block content %}
+<h1>뉴스</h1>
+
+<form method="post" action="{{ url_for('refresh_news') }}" class="refresh-form">
+    <button type="submit">뉴스 데이터 수집 (구글 뉴스 크롤링 실행)</button>
+    <span class="meta">고객사/동종사/관심뉴스/에너지 4개 카테고리를 순서대로 검색합니다. 1~2분 정도 걸릴 수 있어요.</span>
+</form>
+
+{% for category, groups in news.items() %}
+<section class="card">
+    <h2>{{ category }}</h2>
+    {% if groups %}
+        {% for name, items in groups.items() %}
+        <h3>{{ name }}</h3>
+        <ul class="news-list">
+            {% for item in items %}
+            <li>
+                <a href="{{ item.get('링크', '#') }}" target="_blank" rel="noopener">{{ item.get('제목', '') }}</a>
+                <span class="meta">{{ item.get('언론사', '') }} · {{ item.get('날짜', '') }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endfor %}
+    {% else %}
+        <p class="empty">데이터가 없습니다. 해당 단계(1.1~1.4)의 수집 스크립트를 먼저 실행하세요.</p>
+    {% endif %}
+</section>
+{% endfor %}
+{% endblock %}
