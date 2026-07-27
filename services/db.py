@@ -62,15 +62,26 @@ httpx의 HTTP/2 연결이 "RemoteProtocolError: StreamReset ... remote_reset:Tru
     );
 """
 import os
+import re
 
 import requests
 
 
+def _clean_env(value: str) -> str:
+    """환경변수 값에서 모든 공백/개행 문자를 제거한다.
+
+    Vercel 환경변수 입력 폼에 값을 붙여넣는 과정에서 문자 중간에 개행(\n)이
+    섞여 들어가는 경우가 있었다(예: 'sb_secret_90Mv0\nKjHETx...'). 앞뒤 공백만
+    제거하는 strip()으로는 이런 "중간에 낀" 개행을 잡지 못해 requests가
+    InvalidHeader를 던졌다. URL/API 키에는 원래 공백 문자가 올 수 없으므로,
+    문자열 어디에 있든 공백류 문자를 전부 제거해도 안전하다.
+    """
+    return re.sub(r"\s+", "", value or "")
+
+
 def _base_url_and_headers(prefer: str = None):
-    # 환경변수 값에 실수로 섞여 들어간 앞뒤 공백/개행문자(복사-붙여넣기 시 흔함)가 있으면
-    # requests가 InvalidHeader 예외를 던지므로, 여기서 방어적으로 제거한다.
-    url = (os.environ.get("SUPABASE_URL") or "").strip()
-    key = (os.environ.get("SUPABASE_KEY") or "").strip()
+    url = _clean_env(os.environ.get("SUPABASE_URL"))
+    key = _clean_env(os.environ.get("SUPABASE_KEY"))
     if not url or not key:
         raise RuntimeError(
             "SUPABASE_URL / SUPABASE_KEY 환경변수가 설정되어 있지 않습니다. "
