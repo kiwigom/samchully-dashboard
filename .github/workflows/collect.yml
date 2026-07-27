@@ -9,9 +9,10 @@ on:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: flask_dashboard
+    # 저장소 루트에 이미 flask_dashboard 폴더의 내용물이 그대로 커밋되어 있어서
+    # (app.py, services/, scripts/ 등이 루트에 바로 있음) 별도 working-directory가 필요 없다.
+    # 예전에 "flask_dashboard"로 지정했다가 그런 하위 폴더가 없어 체크아웃 직후
+    # "No such file or directory" 에러로 곧바로 실패했다.
     steps:
       - name: 저장소 체크아웃
         uses: actions/checkout@v4
