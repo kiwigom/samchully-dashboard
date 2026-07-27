@@ -67,8 +67,10 @@ import requests
 
 
 def _base_url_and_headers(prefer: str = None):
-    url = os.environ.get("SUPABASE_URL")
-    key = os.environ.get("SUPABASE_KEY")
+    # 환경변수 값에 실수로 섞여 들어간 앞뒤 공백/개행문자(복사-붙여넣기 시 흔함)가 있으면
+    # requests가 InvalidHeader 예외를 던지므로, 여기서 방어적으로 제거한다.
+    url = (os.environ.get("SUPABASE_URL") or "").strip()
+    key = (os.environ.get("SUPABASE_KEY") or "").strip()
     if not url or not key:
         raise RuntimeError(
             "SUPABASE_URL / SUPABASE_KEY 환경변수가 설정되어 있지 않습니다. "
